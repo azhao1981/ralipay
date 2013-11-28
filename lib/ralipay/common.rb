@@ -61,6 +61,10 @@ module Ralipay::Common
     openssl_public = OpenSSL::PKey::RSA.new rsa_public_key_file
     #生成SHA1密钥串
     digest = OpenSSL::Digest::SHA1.new
+    puts "*" * 8
+    puts for_sign_string 
+    puts signed_string
+    puts "*" * 8
     #openssl验证签名
     openssl_public.verify(digest, Base64.decode64(signed_string), for_sign_string)
   end

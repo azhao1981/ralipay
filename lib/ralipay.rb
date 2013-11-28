@@ -57,7 +57,7 @@ module Ralipay
           :partner        => $global_configs[:partner],
           :out_user       => ''
       }
-      result = Service.new.mobile_merchant_pay_channel params
+      result = Ralipay::Service.new.mobile_merchant_pay_channel params
 
       begin
         json = JSON.parse result
@@ -96,7 +96,7 @@ module Ralipay
       }
 
       #获取token
-      token = Service.new.alipay_wap_trade_create_direct(req_hash)
+      token = Ralipay::Service.new.alipay_wap_trade_create_direct(req_hash)
 
       #构造要请求的参数数组，无需改动
       req_hash = {
@@ -112,17 +112,17 @@ module Ralipay
       }
 
       #调用alipay_Wap_Auth_AuthAndExecute接口方法,生成支付地址
-      Service.new.alipay_wap_auth_and_execute(req_hash)
+      Ralipay::Service.new.alipay_wap_auth_and_execute(req_hash)
     end
 
     #同步回调验证,支付后跳转,前端GET方式获得参数,传入hash symbol,该方法只返回bool
     def callback_verify? gets
-      (Notify.new.return_verify? gets) && (gets[:result] == 'success')
+      (Ralipay::Notify.new.return_verify? gets) && (gets[:result] == 'success')
     end
 
     #同步回调验证,支付后跳转,前端GET方式获得参数,传入hash symbol,该方法返回支付状态,并安全的返回回调参数hash,失败返回false
     def callback_verify gets
-      if (Notify.new.return_verify? gets) && (gets[:result] == 'success')
+      if (Ralipay::Notify.new.return_verify? gets) && (gets[:result] == 'success')
         {
             :out_trade_no => gets[:out_trade_no], #外部交易号
             :trade_no     => gets[:trade_no]      #支付宝交易号
@@ -136,7 +136,7 @@ module Ralipay
     #成功请自行向支付宝打印纯文本success
     #如验签失败或未输出success支付宝会24小时根据策略重发总共7次,需考虑重复通知的情况
     def notify_verify? posts
-      if Notify.new.notify_verify? posts
+      if Ralipay::Notify.new.notify_verify? posts
         #解密并解析返回参数的xml
         xml    = Ralipay::Common::decrypt posts[:notify_data]
         doc    = Nokogiri::XML xml
@@ -152,7 +152,7 @@ module Ralipay
     #成功请自行向支付宝打印纯文本success
     #如验签失败或未输出success支付宝会24小时根据策略重发总共7次,需考虑重复通知的情况
     def notify_verify posts
-      if Notify.new.notify_verify? posts
+      if Ralipay::Notify.new.notify_verify? posts
         #解密并解析返回参数的xml
         xml    = Ralipay::Common::decrypt posts[:notify_data]
         doc    = Nokogiri::XML xml
