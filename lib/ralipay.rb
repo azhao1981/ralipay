@@ -183,55 +183,24 @@ module Ralipay
       $global_configs = $global_configs.merge configs
     end
 
-    #异步回调验证,支付宝主动通知,前端POST xml方式获得参数,该方法只返回bool
+    #异步回调验证,支付宝主动通知,现在已经是直接返回参数请求了，原方法不可用
     #成功请自行向支付宝打印纯文本success
     #如验签失败或未输出success支付宝会24小时根据策略重发总共7次,需考虑重复通知的情况
     def notify_verify? posts
-      notify_data = 'notify_data=' + posts[:notify_data].to_s
+      notify_data = Ralipay::Common::para_filter gets
       sign        = posts[:sign]
       #验签名
       verify = Ralipay::Common::verify?(notify_data, sign)
-
-      if verify
-        #解密并解析返回参数的xml
-        xml    = posts[:notify_data]
-        doc    = Nokogiri::XML xml
-        status = doc.xpath('/notify/trade_status').text
-        #获得可信的交易状态
-        status == 'TRADE_FINISHED' ? true : false
-      else
-        false
-      end
     end
 
-    #异步回调验证,支付宝主动通知,前端POST xml方式获得参数,该方法返回支付状态,并安全的返回回调参数hash,失败返回false
+    #异步回调验证,支付宝主动通知,现在已经是直接返回参数请求了，原方法不可用
     #成功请自行向支付宝打印纯文本success
     #如验签失败或未输出success支付宝会24小时根据策略重发总共7次,需考虑重复通知的情况
     def notify_verify posts
-      notify_data = 'notify_data=' + posts[:notify_data].to_s
+      notify_data = Ralipay::Common::para_filter gets
       sign        = posts[:sign]
       #验签名
       verify = Ralipay::Common::verify?(notify_data, sign)
-
-      if verify
-        #解密并解析返回参数的xml
-        xml    = posts[:notify_data]
-        doc    = Nokogiri::XML xml
-        status = doc.xpath('/notify/trade_status').text
-        #获得可信的交易状态
-        if status == 'TRADE_FINISHED'
-          {
-              :out_trade_no => doc.xpath('/notify/out_trade_no').text,
-              :subject      => doc.xpath('/notify/subject').text,
-              :price        => doc.xpath('/notify/price').text,
-              :trade_no     => doc.xpath('/notify/trade_no').text
-          }
-        else
-          false
-        end
-      else
-        false
-      end
     end
 
     #客户端callback回调之后POST请求服务器callback_url,传入hash symbol,该方法只返回bool
