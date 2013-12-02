@@ -186,21 +186,27 @@ module Ralipay
     #异步回调验证,支付宝主动通知,现在已经是直接返回参数请求了，原方法不可用
     #成功请自行向支付宝打印纯文本success
     #如验签失败或未输出success支付宝会24小时根据策略重发总共7次,需考虑重复通知的情况
-    def notify_verify? posts
-      notify_data = Ralipay::Common::para_filter gets
-      sign        = posts[:sign]
-      #验签名
-      verify = Ralipay::Common::verify?(notify_data, sign)
+    def notify_verify? gets
+      filted_gets = Ralipay::Common::para_filter gets
+      for_sign_string = Ralipay::Common::create_link_string filted_gets
+      puts Ralipay::Common::verify? for_sign_string, gets['sign']
+
+      # filted_gets     = Ralipay::Common::para_filter posts
+      # for_sign_string = Ralipay::Common::create_link_string filted_gets
+      # sign            = posts[:sign]
+      # #验签名
+      # verify = Ralipay::Common::verify?(for_sign_string, sign)
     end
 
     #异步回调验证,支付宝主动通知,现在已经是直接返回参数请求了，原方法不可用
     #成功请自行向支付宝打印纯文本success
     #如验签失败或未输出success支付宝会24小时根据策略重发总共7次,需考虑重复通知的情况
     def notify_verify posts
-      notify_data = Ralipay::Common::para_filter gets
-      sign        = posts[:sign]
+      filted_gets     = Ralipay::Common::para_filter posts
+      for_sign_string = Ralipay::Common::create_link_string filted_gets
+      sign            = posts[:sign]
       #验签名
-      verify = Ralipay::Common::verify?(notify_data, sign)
+      verify = Ralipay::Common::verify?(for_sign_string, sign)
     end
 
     #客户端callback回调之后POST请求服务器callback_url,传入hash symbol,该方法只返回bool
